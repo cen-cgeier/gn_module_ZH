@@ -1,0 +1,45 @@
+@import '../../../../app.module';
+select {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+select option {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+select.custom-select option:disabled {
+  color: #d9d9d9;
+}
+
+.sub-title {
+  color: #389938;
+  font-size: 1rem;
+  font-weight: 5;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.hint {
+  font-size: 80%;
+  margin-top: -20px;
+}
+
+.hint-text {
+  font-size: 0.75rem;
+}
+
+.info-icon {
+  padding-left: 6px;
+  padding-top: 6px;
+  cursor: help;
+}
+
+::ng-deep .wide-tooltip .tooltip-inner {
+  max-width: 600px;
+}
+
+.bulle {
+  text-align: left;
+}

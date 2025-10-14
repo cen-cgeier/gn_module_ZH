@@ -1,0 +1,713 @@
+<div class="container-fluid">
+  <h2 class="tabsTitle">Statuts et gestion de la zone humide</h2>
+  <form>
+    <fieldset>
+      <legend>
+        <h5 class="section-title">Régime foncier - Statut de propriété</h5>
+      </legend>
+      <div class="form-row">
+        <button
+          mat-raised-button
+          class="mb-3"
+          color="primary"
+          (click)="onAddStatus($event, statusModal)"
+        >
+          <mat-icon>add_box</mat-icon>
+          Statut de propriété
+        </button>
+        <div
+          *ngIf="statusTable && statusTable.length > 0"
+          class="table-responsive"
+        >
+          <zh-table
+            [tableCols]="statusTableCol"
+            [data]="statusTable"
+            [deletable]="true"
+            [editable]="true"
+            (onDelete)="onDeleteStatus($event)"
+            (onEdit)="onEditStatus(statusModal, $event)"
+          ></zh-table>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>
+        <h5 class="section-title">Structure de gestion</h5>
+      </legend>
+      <small>Structure de gestion</small>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <zh-multiselect
+            [values]="structures"
+            keyLabel="name"
+            [parentFormControl]="formTab6.controls.structure"
+            (onOpen)="onStructureOpened()"
+            [multiple]="false"
+          />
+        </div>
+        <div class="form-group d-flex align-items-end col-md-6">
+          <button
+            [disabled]="!this.formTab6.value.structure"
+            mat-raised-button
+            class="mb-3"
+            color="primary"
+            (click)="onAddStructure()"
+            [ngbTooltip]="
+              this.formTab6.value.structure
+                ? ''
+                : 'Veuillez d\'abord sélectionner un organisme dans le menu ci-contre'
+            "
+          >
+            <mat-icon>add_box</mat-icon>
+            Ajouter
+          </button>
+        </div>
+        <div
+          *ngIf="managements && managements.length > 0"
+          class="table-responsive"
+        >
+          <table class="table">
+            <thead class="thead-inverse table-header">
+              <tr>
+                <th>Structure de gestion</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let item of managements">
+                <tr>
+                  <td>
+                    <mat-icon
+                      *ngIf="item.plans && item.plans.length > 0"
+                      class="morePlan"
+                      [matBadge]="item.plans.length"
+                      matBadgePosition="above before"
+                      (click)="onMoreDetails(item)"
+                    >
+                      {{ item.moreDetails ? 'expand_more' : 'expand_less' }}
+                    </mat-icon>
+                    {{ item.name }}
+                  </td>
+                  <td>
+                    <button
+                      mat-raised-button
+                      color="secondary"
+                      (click)="onAddPlan($event, item, planModal)"
+                    >
+                      <mat-icon>add_box</mat-icon>
+                      plan de gestion
+                    </button>
+                  </td>
+                  <td class="tab-buttons">
+                    <button
+                      class="mr-2"
+                      mat-icon-button
+                      placement="top"
+                      ngbTooltip="Supprimer"
+                      (click)="onDeleteStrutureModal(content, item)"
+                    >
+                      <mat-icon class="delete-icon">close</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+                <tr
+                  class="tr-plans"
+                  *ngIf="item.moreDetails && item.plans && item.plans.length > 0"
+                >
+                  <td
+                    colspan="3"
+                    class="tr-plans"
+                  >
+                    <table class="table subtable">
+                      <thead class="thead-inverse table-header">
+                        <tr>
+                          <th *ngFor="let col of planTableCol">
+                            {{ col.label }}
+                          </th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let plan of item.plans">
+                          <td *ngFor="let col of planTableCol">
+                            {{ plan[col.name]?.mnemonique || plan[col.name] }}
+                          </td>
+                          <td class="tab-buttons">
+                            <div>
+                              <button
+                                mat-icon-button
+                                class="mr-2"
+                                placement="top"
+                                ngbTooltip="Editer"
+                                (click)="onEditPlan(planModal, plan, item)"
+                              >
+                                <mat-icon class="edit-icon">edit</mat-icon>
+                              </button>
+                              <button
+                                class="mr-2"
+                                mat-icon-button
+                                placement="top"
+                                ngbTooltip="Supprimer"
+                                (click)="onDeletePlanModal(content, plan, item)"
+                              >
+                                <mat-icon class="delete-icon">close</mat-icon>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>
+        <h5 class="section-title">Instruments contractuels et financiers</h5>
+      </legend>
+      <div class="form-row">
+        <button
+          mat-raised-button
+          class="mb-3"
+          color="primary"
+          (click)="onAddInstrument($event, instrumentModal)"
+        >
+          <mat-icon>add_box</mat-icon>
+          Instruments contractuels et financiers
+        </button>
+        <div
+          *ngIf="instrumentTable && instrumentTable.length > 0"
+          class="table-responsive"
+        >
+          <zh-table
+            [tableCols]="instrumentTableCol"
+            [data]="instrumentTable"
+            [deletable]="true"
+            [editable]="true"
+            (onDelete)="onDeleteInstrument($event)"
+            (onEdit)="onEditInstrument(instrumentModal, $event)"
+          ></zh-table>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>
+        <h5 class="section-title">Inventaires</h5>
+      </legend>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <small>
+            Les inventaires sont disponibles dans
+            <a
+              routerLink="{{ config['ZONES_HUMIDES']['MODULE_URL'] }}/zhDetails/{{
+                currentZh?.properties.id_zh
+              }}"
+              target="_blank"
+            >
+              la fiche complete
+            </a>
+          </small>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <small style="display: block; margin-bottom: 8px">
+            Autres études / inventaires naturalistes
+          </small>
+          <div class="ml-3">
+            <mat-label ngClass="labelBeforeSlide">Non</mat-label>
+            <mat-slide-toggle
+              [formControl]="formTab6.controls.is_other_inventory"
+            ></mat-slide-toggle>
+            <mat-label ngClass="labelBeforeSlide">Oui</mat-label>
+
+            <!-- DO NOT FORGET formControl [formControl]="formTab4.controls.remark_diag" -->
+            <textarea
+              *ngIf="formTab6.controls.is_other_inventory.value"
+              [formControl]="formTab6.controls.remark_is_other_inventory"
+              class="form-control mt-3"
+              placeholder="Commentaires"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>
+        <h5 class="section-title">Principaux statuts</h5>
+      </legend>
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <small>Statuts</small>
+          <zh-multiselect
+            [values]="formMetaData.PROTECTIONS"
+            [parentFormControl]="formTab6.controls.protections"
+            groupBy="category"
+            keyLabel="mnemonique_status"
+          />
+        </div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>
+        <h5 class="section-title">Zonage des documents d'urbanisme</h5>
+      </legend>
+      <div class="form-row">
+        <button
+          mat-raised-button
+          class="mb-3"
+          color="primary"
+          (click)="onAddUrbanDoc($event, urbanDocModal)"
+        >
+          <mat-icon>add_box</mat-icon>
+          Zonage d'urbanisme
+        </button>
+        <div
+          *ngIf="urbanDocTable && urbanDocTable.length > 0"
+          class="table-responsive"
+        >
+          <zh-table
+            [tableCols]="urbanDocTableCol"
+            [data]="urbanDocTable"
+            [deletable]="true"
+            [editable]="true"
+            (onDelete)="onDeleteUrbanDoc($event)"
+            (onEdit)="onEditUrbanDoc(urbanDocModal, $event)"
+          ></zh-table>
+        </div>
+      </div>
+    </fieldset>
+    <div class="footer-btn">
+      <zh-cancelButton
+        *ngIf="currentZh"
+        [zhId]="currentZh.properties.id_zh"
+      ></zh-cancelButton>
+      <button
+        type="submit"
+        mat-raised-button
+        color="primary"
+        class="ml-3"
+        [disabled]="posted"
+        (click)="onFormSubmit()"
+      >
+        <mat-icon *ngIf="!posted">save_outline</mat-icon>
+        <mat-spinner
+          *ngIf="posted"
+          [diameter]="20"
+        ></mat-spinner>
+        Enregistrer
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Modal Statut de propriété -->
+<ng-template
+  #statusModal
+  let-c="close"
+  let-d="dismiss"
+>
+  <div class="modal-header">
+    <h6>{{ modalTitle }}</h6>
+    <button
+      mat-icon-button
+      class="closeModalBtn"
+      (click)="c()"
+    >
+      <mat-icon class="cancel-icon">cancel</mat-icon>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="statusForm">
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <small class="required">Statut</small>
+          <select
+            class="form-control custom-select"
+            ngbAutofocus
+            [formControl]="statusForm.controls.status"
+          >
+            <option
+              *ngFor="let item of statusInput"
+              [ngValue]="item"
+              [disabled]="item.disabled"
+            >
+              {{ item.mnemonique }}
+            </option>
+          </select>
+          <small
+            *ngIf="
+              (statusForm.controls.status.touched || modalFormSubmitted) &&
+              statusForm.controls.status.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-12">
+          <small>Remarques</small>
+          <textarea
+            class="form-control"
+            [formControl]="statusForm.controls.remark"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      mat-raised-button
+      color="primary"
+      class="uppercase"
+      (click)="patchModal ? onPatchStatus() : onPostStatus()"
+    >
+      {{ addModalBtnLabel }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Modal Instruments contractuels et financiers -->
+<ng-template
+  #instrumentModal
+  let-c="close"
+  let-d="dismiss"
+>
+  <div class="modal-header">
+    <h6>{{ modalTitle }}</h6>
+    <button
+      mat-icon-button
+      class="closeModalBtn"
+      (click)="c()"
+    >
+      <mat-icon class="cancel-icon">cancel</mat-icon>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="instrumentForm">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <small class="required">Instruments contractuels et financiers</small>
+          <select
+            class="form-control custom-select"
+            ngbAutofocus
+            [formControl]="instrumentForm.controls.instrument"
+          >
+            <option
+              *ngFor="let item of instrumentInput"
+              [ngValue]="item"
+              [disabled]="item.disabled"
+            >
+              {{ item.mnemonique }}
+            </option>
+          </select>
+          <small
+            *ngIf="
+              (instrumentForm.controls.instrument.touched || modalFormSubmitted) &&
+              instrumentForm.controls.instrument.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-6">
+          <small>Date de mise en oeuvre</small>
+          <div class="input-group">
+            <input
+              class="form-control"
+              placeholder="Date de mise en oeuvre"
+              [formControl]="instrumentForm.controls.instrument_date"
+              name="dp"
+              ngbDatepicker
+              #d2="ngbDatepicker"
+            />
+            <div class="input-group-append">
+              <button
+                class="btn btn-sm btn-outline-shadow"
+                (click)="d2.toggle()"
+                type="button"
+              >
+                <i
+                  _ngcontent-c41=""
+                  aria-hidden="true"
+                  class="fa fa-calendar"
+                ></i>
+              </button>
+            </div>
+          </div>
+          <small
+            *ngIf="
+              (instrumentForm.controls.instrument_date.touched || modalFormSubmitted) &&
+              instrumentForm.controls.instrument_date.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      mat-raised-button
+      color="primary"
+      class="uppercase"
+      (click)="patchModal ? onPatchInstrument() : onPostInstrument()"
+    >
+      {{ addModalBtnLabel }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Modal Zonage des documents d'urbanisme -->
+<ng-template
+  #urbanDocModal
+  let-c="close"
+  let-d="dismiss"
+>
+  <div class="modal-header">
+    <h6>{{ modalTitle }}</h6>
+    <button
+      mat-icon-button
+      class="closeModalBtn"
+      (click)="c()"
+    >
+      <mat-icon class="cancel-icon">cancel</mat-icon>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="urbanDocForm">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <small class="required">Commune</small>
+          <select
+            class="form-control custom-select"
+            ngbAutofocus
+            [formControl]="urbanDocForm.controls.area"
+          >
+            <option
+              *ngFor="let item of municipalities"
+              [ngValue]="item"
+              [disabled]="item.disabled"
+            >
+              {{ item.municipality_name }}
+            </option>
+          </select>
+          <small
+            *ngIf="
+              (urbanDocForm.controls.area.touched || modalFormSubmitted) &&
+              urbanDocForm.controls.area.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-6">
+          <small class="required">Type de document communal</small>
+          <select
+            class="form-control custom-select"
+            ngbAutofocus
+            [formControl]="urbanDocForm.controls.urbanType"
+          >
+            <option
+              *ngFor="let item of formMetaData.TYP_DOC_COMM"
+              [ngValue]="item"
+            >
+              {{ item.mnemonique }}
+            </option>
+          </select>
+          <small
+            *ngIf="
+              (urbanDocForm.controls.urbanType.touched || modalFormSubmitted) &&
+              urbanDocForm.controls.urbanType.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-12">
+          <small class="required">Type de classement</small>
+          <zh-multiselect
+            [values]="typeClassementInput"
+            [parentFormControl]="urbanDocForm.controls.typeClassement"
+            keyLabel="mnemonique"
+          />
+          <small
+            *ngIf="
+              (urbanDocForm.controls.typeClassement.touched || modalFormSubmitted) &&
+              urbanDocForm.controls.typeClassement.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-12">
+          <small>Remarques</small>
+          <textarea
+            class="form-control"
+            [formControl]="urbanDocForm.controls.remark"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      mat-raised-button
+      color="primary"
+      class="uppercase"
+      (click)="patchModal ? onPatchUrbanDoc() : onPostUrbanDoc()"
+    >
+      {{ addModalBtnLabel }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Modal Zonage des plans de gestion -->
+<ng-template
+  #planModal
+  let-c="close"
+  let-d="dismiss"
+>
+  <div class="modal-header">
+    <h6>{{ modalTitle }}</h6>
+    <button
+      mat-icon-button
+      class="closeModalBtn"
+      (click)="c()"
+    >
+      <mat-icon class="cancel-icon">cancel</mat-icon>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="planForm">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <small class="required">Nature du plan</small>
+          <select
+            class="form-control custom-select"
+            ngbAutofocus
+            [formControl]="planForm.controls.plan"
+          >
+            <option
+              *ngFor="let item of planInput"
+              [ngValue]="item"
+              [disabled]="item.disabled"
+            >
+              {{ item.mnemonique }}
+            </option>
+          </select>
+          <small
+            *ngIf="
+              (planForm.controls.plan.touched || modalFormSubmitted) &&
+              planForm.controls.plan.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-6">
+          <small class="required">Date de réalisation</small>
+          <div class="input-group">
+            <input
+              class="form-control"
+              placeholder="Date de réalisation"
+              [formControl]="planForm.controls.plan_date"
+              name="dp"
+              ngbDatepicker
+              #d1="ngbDatepicker"
+            />
+            <div class="input-group-append">
+              <button
+                class="btn btn-sm btn-outline-shadow"
+                (click)="d1.toggle()"
+                type="button"
+              >
+                <i
+                  _ngcontent-c41=""
+                  aria-hidden="true"
+                  class="fa fa-calendar"
+                ></i>
+              </button>
+            </div>
+          </div>
+          <small
+            *ngIf="
+              (planForm.controls.plan_date.touched || modalFormSubmitted) &&
+              planForm.controls.plan_date.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-6">
+          <small class="required">Durée (années)</small>
+          <input
+            class="form-control custom-select"
+            type="number"
+            [formControl]="planForm.controls.duration"
+            min="0"
+          />
+          <small
+            *ngIf="
+              (planForm.controls.duration.touched || modalFormSubmitted) &&
+              planForm.controls.duration.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-12">
+          <small>Remarques</small>
+          <textarea
+            class="form-control"
+            [formControl]="planForm.controls.remark"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      mat-raised-button
+      color="primary"
+      class="uppercase"
+      (click)="patchModal ? onPatchPlan() : onPostPlan()"
+    >
+      {{ addModalBtnLabel }}
+    </button>
+  </div>
+</ng-template>
+<ng-template
+  #content
+  let-c="close"
+  let-d="dismiss"
+>
+  <zh-delete-modal
+    (onCancel)="d()"
+    (onDelete)="c()"
+  >
+    <p>Etes-vous sûr de vouloir supprimer cette ligne ?</p>
+  </zh-delete-modal>
+</ng-template>

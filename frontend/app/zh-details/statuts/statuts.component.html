@@ -1,0 +1,140 @@
+<div>
+  <div class="row my-3">
+    <div class="col-12 h-100">
+      <fieldset>
+        <legend>
+          <h5 class="section-title">Régime foncier - Statut de propriété</h5>
+        </legend>
+        <div>
+          <zh-table
+            [tableCols]="regimeTableCol"
+            [data]="data.regime"
+          ></zh-table>
+        </div>
+      </fieldset>
+    </div>
+    <div class="col-12 h-100">
+      <fieldset>
+        <legend>
+          <h5 class="section-title">Structure de gestion</h5>
+        </legend>
+        <div
+          class="mb-3"
+          *ngFor="let struct of data.structure"
+        >
+          <p class="structure-label">{{ struct.structure }} :</p>
+          <div>
+            <zh-table
+              [tableCols]="plansTableCol"
+              [data]="struct.plans"
+            ></zh-table>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <div class="col-12 h-100">
+      <fieldset>
+        <legend>
+          <h5 class="section-title">Instruments contractuels et financiers</h5>
+        </legend>
+        <div>
+          <zh-table
+            [tableCols]="instrumentsTableCol"
+            [data]="data.instruments"
+          ></zh-table>
+        </div>
+      </fieldset>
+    </div>
+    <div class="col-12 h-100">
+      <fieldset>
+        <legend>
+          <h5 class="section-title">Inventaires</h5>
+        </legend>
+        <table class="table mb-4">
+          <tbody>
+            <ng-container *ngFor="let geo of config['ZONES_HUMIDES']['ref_geo_referentiels']">
+              <tr *ngIf="geo.active">
+                <td>{{ geo.zh_name }}</td>
+                <td>
+                  <ul>
+                    <ng-container *ngIf="table[geo.type_code_ref_geo]?.length > 0; else elseBlock">
+                      <li
+                        class="label-item"
+                        *ngFor="let ref of table[geo.type_code_ref_geo]"
+                      >
+                        {{ ref.area_code }} -
+                        <a
+                          href="{{ ref.url }}"
+                          target="_blank"
+                        >
+                          {{ ref.area_name }}
+                        </a>
+                      </li>
+                    </ng-container>
+                    <ng-template #elseBlock>
+                      <li class="label-item">Aucun</li>
+                    </ng-template>
+                  </ul>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+        <div class="row">
+          <div class="col-12 col-lg-4">
+            <zh-label label="Autres études / inventaires naturalistes : ">
+              <span>{{ data.autre_etude }}</span>
+            </zh-label>
+          </div>
+          <div class="col-12 col-lg-8">
+            <zh-label
+              *ngIf="data?.autre_etude == 'Oui'"
+              label="Commentaires : "
+            >
+              <span>{{ data?.autre_etude_commentaire }}</span>
+            </zh-label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <div class="col-12 h-100">
+      <fieldset>
+        <legend>
+          <h5 class="section-title">Principaux statuts</h5>
+        </legend>
+        <zh-label label="Statuts : ">
+          <ul>
+            <li
+              class="label-item"
+              *ngFor="let item of data.statuts"
+            >
+              <span>{{ item.category }}</span>
+              <ul>
+                <li
+                  class="label-item ml-1"
+                  *ngFor="let status of item.items"
+                >
+                  <span>{{ status.status }}</span>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </zh-label>
+      </fieldset>
+    </div>
+
+    <div class="col-12 h-100">
+      <fieldset>
+        <legend>
+          <h5 class="section-title">Zonage des documents d'urbanisme</h5>
+        </legend>
+        <div>
+          <zh-table
+            [tableCols]="zonageTableCol"
+            [data]="data.zonage"
+          ></zh-table>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+</div>

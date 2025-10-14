@@ -1,0 +1,292 @@
+<div class="container-fluid">
+  <h2 class="tabsTitle">Description du bassin versant et de la zone humide</h2>
+  <form>
+    <fieldset>
+      <legend>
+        <h5 class="section-title">Présentation de la zone humide et de ses milieux</h5>
+      </legend>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <small class="required">Typologie SDAGE</small>
+          <select
+            class="form-control"
+            [formControl]="form.controls.id_sdage"
+          >
+            <option
+              *ngFor="let sd of formMetaData.SDAGE"
+              [ngValue]="sd.id_nomenclature"
+            >
+              {{ sd.mnemonique }}
+            </option>
+          </select>
+          <small
+            *ngIf="
+              (form.controls.id_sdage.touched || submitted) &&
+              form.controls.id_sdage.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-6">
+          <small>Sous-type SAGE</small>
+          <select
+            class="form-control"
+            [formControl]="form.controls.id_sage"
+          >
+            <option></option>
+            <option
+              *ngFor="let sg of sage"
+              [ngValue]="sg.id_nomenclature"
+            >
+              {{ sg.mnemonique }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <small>Types d’habitats Corine biotopes humides (H) ou potentiellement humides (P)</small>
+          <input
+            id="typeahead-basic"
+            type="text"
+            class="form-control"
+            placeholder="Tapez les premières lettres..."
+            [formControl]="form.controls.corinBio"
+            [resultFormatter]="formatter"
+            [inputFormatter]="formatter"
+            [ngbTypeahead]="search"
+          />
+        </div>
+        <div class="form-group d-flex align-items-end col-md-6">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onAddCorinBio()"
+          >
+            <mat-icon>add_box</mat-icon>
+            Ajouter
+          </button>
+        </div>
+      </div>
+      <div
+        *ngIf="listCorinBio && listCorinBio.length > 0"
+        class="table-responsive"
+      >
+        <zh-table
+          [tableCols]="corinTableCol"
+          [data]="listCorinBio"
+          [deletable]="true"
+          (onDelete)="onDeleteCorin($event?.CB_code)"
+        ></zh-table>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <small>Remarques</small>
+          <textarea
+            [formControl]="form.controls.remark_pres"
+            class="form-control"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>
+        <h5 class="section-title">Description de l'espace de fonctionnalité</h5>
+      </legend>
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <small>Occupation des sols (Nomenclature Corine Land Cover)</small>
+          <zh-multiselect
+            [values]="formMetaData.OCCUPATION_SOLS"
+            [parentFormControl]="form.controls.id_corine_landcovers"
+            keyLabel="mnemonique"
+          />
+        </div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>
+        <h5 class="section-title">Usages ou processus naturels</h5>
+      </legend>
+      <button
+        mat-raised-button
+        class="mb-3"
+        color="primary"
+        (click)="onAddActivity($event, activityModal)"
+      >
+        <mat-icon>add_box</mat-icon>
+        Ajouter une activité humaine
+      </button>
+      <div
+        *ngIf="listActivity && listActivity.length > 0"
+        class="table-responsive"
+      >
+        <zh-table
+          [tableCols]="activityTableCol"
+          [data]="listActivity"
+          [deletable]="true"
+          [editable]="true"
+          (onEdit)="onEditActivity(activityModal, $event)"
+          (onDelete)="onDeleteActivity($event)"
+        ></zh-table>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <small>Évaluation globale des menaces potentielles ou avérées</small>
+          <select
+            class="form-control"
+            [formControl]="form.controls.id_thread"
+          >
+            <option
+              *ngFor="let menace of formMetaData.EVAL_GLOB_MENACES"
+              [ngValue]="menace.id_nomenclature"
+            >
+              {{ menace.mnemonique }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group col-md-12">
+          <small>Remarques</small>
+          <textarea
+            class="form-control"
+            [formControl]="form.controls.global_remark_activity"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+  <div class="footer-btn">
+    <zh-cancelButton
+      *ngIf="currentZh"
+      [zhId]="currentZh.properties.id_zh"
+    ></zh-cancelButton>
+    <button
+      type="submit"
+      mat-raised-button
+      color="primary"
+      class="ml-3"
+      [disabled]="posted"
+      (click)="onFormSubmit()"
+    >
+      <mat-icon *ngIf="!posted">save_outline</mat-icon>
+      <mat-spinner
+        *ngIf="posted"
+        [diameter]="20"
+      ></mat-spinner>
+      Enregistrer
+    </button>
+  </div>
+</div>
+
+<!-- MODAL humain activity -->
+<ng-template
+  #activityModal
+  let-c="close"
+  let-d="dismiss"
+>
+  <div class="modal-header">
+    <h6>{{ modalTitle }}</h6>
+    <button
+      mat-icon-button
+      class="closeModalBtn"
+      (click)="c()"
+    >
+      <mat-icon class="cancel-icon">cancel</mat-icon>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="activityForm">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <small class="required">Activités humaines</small>
+          <select
+            class="form-control activities-select"
+            ngbAutofocus
+            [formControl]="activityForm.controls.human_activity"
+          >
+            <option
+              *ngFor="let activity of activitiesInput"
+              [ngValue]="activity"
+              [disabled]="activity.disabled"
+            >
+              {{ activity.mnemonique }}
+            </option>
+          </select>
+          <small
+            *ngIf="
+              (activityForm.controls.human_activity.touched || formImpactSubmitted) &&
+              activityForm.controls.human_activity.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-6">
+          <small class="required">Localisation</small>
+          <select
+            class="form-control"
+            [formControl]="activityForm.controls.localisation"
+          >
+            <option
+              *ngFor="let localisation of formMetaData.LOCALISATION"
+              [ngValue]="localisation"
+            >
+              {{ localisation.mnemonique }}
+            </option>
+          </select>
+          <small
+            *ngIf="
+              (activityForm.controls.localisation.touched || formImpactSubmitted) &&
+              activityForm.controls.localisation.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-12">
+          <small class="required">Impacts (facteurs influençant l’évolution de la zone)</small>
+          <zh-multiselect
+            [values]="formMetaData.IMPACTS"
+            [parentFormControl]="activityForm.controls.impacts"
+            keyLabel="mnemonique"
+            groupBy="category"
+          />
+          <small
+            *ngIf="
+              (activityForm.controls.impacts.touched || formImpactSubmitted) &&
+              activityForm.controls.impacts.errors?.required
+            "
+            class="error-msg"
+          >
+            Champ requis
+          </small>
+        </div>
+        <div class="form-group col-md-12">
+          <small>Remarques</small>
+          <textarea
+            class="form-control"
+            [formControl]="activityForm.controls.remark_activity"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      mat-raised-button
+      color="primary"
+      class="uppercase"
+      (click)="patchActivity ? onPatchActivity() : onPostActivity()"
+    >
+      {{ modalButtonLabel }}
+    </button>
+  </div>
+</ng-template>

@@ -1,0 +1,2 @@
+# Fichier listant les librairies python à installer
+staticmap==0.5.5
