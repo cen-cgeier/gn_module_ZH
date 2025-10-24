@@ -1064,6 +1064,7 @@ def update_hierarchy(id_zh):
     except Exception as e:
         pass
 
+
 @blueprint.route("/hierarchy/fields/<int:id_rb>", methods=["GET"])
 @permissions.check_cruved_scope("R", module_code="ZONES_HUMIDES")
 @json_resp
