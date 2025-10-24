@@ -158,7 +158,7 @@ pdf_small_layer_number = 0
 pdf_last_page_img = ""
 # Name of the source
 pdf_title = "Inventaire des zones humides"
-# Afficher l'ensemble des fonctions dans l'export pdf 
+# Afficher l'ensemble des fonctions dans l'export pdf
 pdf_details = False
 
 
